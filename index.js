@@ -22,9 +22,6 @@ function scrape(url, callback) {
                 var $ = cheerio.load(html);
                 $('a').each(function () {
                     var newUrl = $(this).attr('href');
-                    if (newUrl.substring(0, 1) === '/') {
-                        newUrl = "http://" + config.domainName + newUrl;
-                    }
                     if (!urlHelper.checkUrlVisited(newUrl,urlsVisited) && !urlHelper.checkUrlToVisit(newUrl,urlsToVisit)) {
                         if (urlHelper.verifyDomain(newUrl)) {
                             urlsToVisit.push(newUrl);
