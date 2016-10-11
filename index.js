@@ -1,27 +1,111 @@
 'use strict';
 
 /* global require*/
-/* global process, Buffer, console*/
+/* global process, console*/
 /* jshint node: true, quotmark: false */
-var express = require('express');
 var config = require('./config.json');
 var request = require('request');
 var cheerio = require('cheerio');
 var async = require('async');
-var cache = require('memory-cache');
+var keypress = require('keypress');
+keypress(process.stdin);
+var fs = require('fs');
+var urlHelper = require('./helpers/urlHelper');
+var urlsToVisit = [config.baseUrl];
+var urlsVisited = [];
+var stopFetch = false;
 
-function scrape() {
-    var url = 'https://medium.com';
-    request(url, function (error, response, html) {
-        if (!error) {
-            var $ = cheerio.load(html);
-            var count = 0;
-            $('a').each(function () {
-                count++;
-                console.log($(this).attr('href'));
-            });
-            console.log(count);
+function scrape(url, callback) {
+    if (url && !urlHelper.checkUrlVisited(url,urlsVisited)) {
+        request(url, function (error, response, html) {
+            if (!error) {
+                var $ = cheerio.load(html);
+                $('a').each(function () {
+                    var newUrl = $(this).attr('href');
+                    if (newUrl.substring(0, 1) === '/') {
+                        newUrl = "http://" + config.domainName + newUrl;
+                    }
+                    if (!urlHelper.checkUrlVisited(newUrl,urlsVisited) && !urlHelper.checkUrlToVisit(newUrl,urlsToVisit)) {
+                        if (urlHelper.verifyDomain(newUrl)) {
+                            urlsToVisit.push(newUrl);
+                        } else {
+                            urlsVisited.push(newUrl);
+                        }
+                    }
+                });
+                urlsVisited.push(url);
+                urlsToVisit.splice(urlsToVisit.indexOf(url), 1);
+                callback();
+            } else {
+                if (error.message.code === 'ETIMEDOUT') {
+                    console.log("Connection timedout for: " + url);
+                    callback();
+                } else {
+                    callback(error);
+                }
+            }
+        });
+    } else {
+        callback();
+    }
+}
+async.whilst(
+    function () {
+        return urlHelper.isUrlToVisitEmpty(urlsToVisit);
+    },
+    function (callback) {
+        var length = urlsToVisit.length;
+        async.eachLimit(urlsToVisit, 5, function (url, callback) {
+            if (!stopFetch) {
+                scrape(url, callback);
+                console.log("To Visit: " + urlsToVisit.length + " ------- " + "Visited: " + urlsVisited.length + ". Press enter to stop.");
+            } else {
+                callback(new Error('PROCESS_STOPPED'));
+            }
+        }, function (err) {
+            if (err) {
+                callback(err);
+            } else {
+                urlsToVisit.splice(0, length);
+                callback();
+            }
+        });
+    },
+    function (err) {
+        if (err) {
+            if (err.message === 'PROCESS_STOPPED') {
+                createCSV();
+            } else {
+                console.log(err);
+                process.exit(1);
+            }
+        } else {
+            createCSV();
+        }
+
+    }
+);
+
+function createCSV() {
+    console.log("Creating CSV......");
+    var links = urlsVisited.join(',');
+    fs.writeFile(config.csvFilePath, links, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("CSV created successfully.");
+            process.exit(1);
         }
     });
 }
-scrape();
+
+process.stdin.on('keypress', function (ch, key) {
+    if (key) {
+        if (key.name === 'return') {
+            stopFetch = true;
+        } else if (key.ctrl && key.name === 'c') {
+            process.exit(1);
+        }
+    }
+});
+process.stdin.setRawMode(true);

@@ -1,3 +1,5 @@
 {
-	
+	"baseUrl": "https://medium.com",
+	"domainName": "medium.com",
+	"csvFilePath": "links.csv"
 }
