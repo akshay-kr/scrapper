@@ -32,9 +32,10 @@ function scrape(url, callback) {
                     }
                 });
                 urlsVisited.push(url);
+                console.log("To Visit: " + urlsToVisit.length + " ------- " + "Visited: " + urlsVisited.length + ". Press enter to stop.");
                 callback();
             } else {
-                if (error.message.code === 'ETIMEDOUT') {
+                if (error.code === 'ETIMEDOUT') {
                     console.log("Connection timedout for: " + url);
                     callback();
                 } else if (error.message.match(/Invalid URI/g)) {
