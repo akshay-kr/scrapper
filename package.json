@@ -1,0 +1,25 @@
+{
+  "name": "scrapper",
+  "version": "1.0.0",
+  "description": "Fetch all hyperlinks of a website.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akshay1706/scrapper\\"
+  },
+  "keywords": [
+    "scrapper"
+  ],
+  "author": "Akshay Kumar",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.0.1",
+    "cheerio": "^0.22.0",
+    "express": "^4.14.0",
+    "memory-cache": "^0.1.6",
+    "request": "^2.75.0"
+  }
+}
