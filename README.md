@@ -6,21 +6,7 @@
 Description
 -------------
 
-Scrapper is a node.js script which is designed  following the problem statement of **"Rentomojo Node.js Assignment"** described below hosted by **"Rentomojo"**. Scrapper efficiently fetches all hyperlinks in a website.
-
-> **Problem Statement**
-
->Scrap popular blogging website https://medium.com  and find all possible hyperlinks present within  https://medium.com  website and generate a CSV output.
->You need to,
-
-> - use Node.js for scripting.
-> - throttle the requests made to medium.com at max 5 requests at a time.
-> - use asynchronous nature of javascript as much as possible.
-> - Using Git with proper commit and readme file is a plus.
-> - Share two versions of the assignment - One using async library and the other without.
-> 
-> PS: 
-> Don’t spam medium.com servers with too many requests, their server might ban your ip.
+Scrapper is a node.js script which efficiently fetches all hyperlinks in a website. It throttles the requests made to website at max 5 requests at a time.
 
 Table of contents
 -------------
